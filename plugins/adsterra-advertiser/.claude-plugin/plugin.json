@@ -1,0 +1,27 @@
+{
+  "name": "adsterra-advertiser",
+  "displayName": "Adsterra Advertiser",
+  "version": "1.0.0",
+  "description": "Work with your Adsterra advertiser account from your AI agent: statistics, campaigns, budgets, placements, custom bids and campaign activity.",
+  "author": {
+    "name": "Adsterra",
+    "url": "https://adsterra.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["adsterra", "advertising", "advertiser", "mcp"],
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Adsterra MCP token",
+      "description": "Token with type MCP from Settings → API in your Adsterra advertiser account.",
+      "sensitive": true,
+      "required": true
+    },
+    "server_url": {
+      "type": "string",
+      "title": "Connector URL",
+      "description": "Do not change it: the plugin sends your token to this address. Adsterra never asks advertisers to change it.",
+      "default": "https://mcp.adsterratools.com/advertiser"
+    }
+  }
+}

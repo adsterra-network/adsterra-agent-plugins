@@ -1,0 +1,21 @@
+{
+  "name": "adsterra-advertiser",
+  "version": "1.0.0",
+  "description": "Work with your Adsterra advertiser account from your AI agent: statistics, campaigns, budgets, placements, custom bids and campaign activity.",
+  "author": {
+    "name": "Adsterra",
+    "url": "https://adsterra.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["adsterra", "advertising", "advertiser", "mcp"],
+  "skills": "./skills/",
+  "mcpServers": "./codex-mcp.json",
+  "interface": {
+    "displayName": "Adsterra Advertiser",
+    "shortDescription": "Statistics and campaigns of your Adsterra advertiser account",
+    "developerName": "Adsterra",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://adsterra.com"
+  }
+}

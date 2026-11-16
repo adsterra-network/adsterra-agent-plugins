@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "adsterra-advertiser": {
+      "url": "https://mcp.adsterratools.com/advertiser",
+      "http_headers": {
+        "X-Adsterra-Plugin": "1.0.0"
+      },
+      "env_http_headers": {
+        "X-API-Key": "ADSTERRA_API_KEY"
+      }
+    }
+  }
+}
