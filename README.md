@@ -5,10 +5,10 @@ The `adsterra` plugin marketplace for Claude Code and Codex.
 The `adsterra-advertiser` plugin connects your AI agent to the Adsterra connector: an MCP server that works with
 your Adsterra advertiser account through the advertiser API. With it the agent can:
 
-- read statistics, balance, campaigns, pricing settings, creatives, landings, blacklists, whitelists, custom bids and
+- read statistics, balance, campaigns, country bids, creatives, landings, blacklists, whitelists, custom bids and
   campaign requests;
-- change blacklists, whitelists and custom bids, start and pause campaigns, pause creatives, replace the landing
-  domain, create campaign requests and cancel verifications.
+- change blacklists, whitelists, custom bids and country bids, start and pause campaigns, pause creatives, replace the
+  landing domain, create campaign requests and cancel verifications.
 
 The plugin also gives the agent a skill: which tools and statistics breakdowns answer typical questions, what to
 show you before a change, and what to tell you when the connector does not connect. The skill tells the agent to

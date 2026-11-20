@@ -1,6 +1,6 @@
 ---
 name: adsterra-advertiser
-description: Answers questions about an Adsterra advertiser account and makes changes in it with the Adsterra connector tools (get_statistics, list_campaigns, get_campaign, add_to_blacklist, start_campaign and others). Use when the user asks about their Adsterra statistics, spend, conversions, CTR, countries, placements, creatives, campaigns, balance or daily budget, wants to change blacklists, whitelists, custom bids, campaign or creative status, landing domains, campaign requests or verifications, asks about their Adsterra token, or when the Adsterra tools are missing.
+description: Answers questions about an Adsterra advertiser account and makes changes in it with the Adsterra connector tools (get_statistics, list_campaigns, get_campaign, add_to_blacklist, replace_custom_bids, clear_custom_bids, replace_campaign_country_bids, start_campaign and others). Use when the user asks about their Adsterra statistics, spend, conversions, CTR, countries, placements, creatives, campaigns, balance or daily budget, wants to change blacklists, whitelists, custom bids, country bids, campaign or creative status, landing domains, campaign requests or verifications, asks about their Adsterra token, or when the Adsterra tools are missing.
 ---
 
 # Adsterra advertiser
@@ -75,6 +75,9 @@ with type MCP without Read-only in Settings → API and put it into the AI clien
 | `add_to_blacklist`, `remove_from_blacklist` | `get_blacklist` of each campaign | which placements are added to or removed from the blacklist of which campaign |
 | `add_to_whitelist`, `remove_from_whitelist` | `get_whitelist` | which placements are added to or removed from the whitelist of the campaign; if the whitelist is empty, that after `add_to_whitelist` the campaign buys traffic only from these placements |
 | `add_custom_bids`, `update_custom_bids`, `remove_custom_bids` | `get_custom_bids` | which custom bids of the campaign are added, changed or removed: placement, country, price before → after |
+| `replace_custom_bids` | `get_custom_bids` | the custom bids of the campaign before → after, and each custom bid that will be removed: its placement, its `country_code` and its bid. If `get_custom_bids` returned an error: the campaign, the custom bids it will have after the call, and that all its other custom bids will be removed |
+| `clear_custom_bids` | `get_custom_bids` | every custom bid of the campaign, all of them will be removed: the placement, the `country_code` and the bid of each. If `get_custom_bids` returned an error: the campaign and that all its custom bids will be removed |
+| `replace_campaign_country_bids` | `get_campaign_country_bids`, `get_custom_bids` | the country bids of the campaign before → after, the countries whose country bids will be removed and the custom bids in these countries, which stay; if there is a row with `country_id` 0, that this GLOBAL country bid stays. If `get_campaign_country_bids` returned an error: the campaign, the country bids it will have after the call, and that the country bids of all its other countries will be removed. What to say about the targeting countries: see below |
 | `start_campaign`, `pause_campaign` | `get_campaign` | which campaign starts or pauses, its status before → after |
 | `pause_creative` | `list_campaign_creatives` of its campaign, if you know the campaign | which creative pauses, its status before → after |
 | `replace_domain_in_all_landings` | `list_campaigns_landing_domains` with `active` 1, 2 and 3; also with 4 if the user asks to change archived campaigns too | which domain is replaced with which, and the landings of which campaigns have the old domain: every landing url that contains it anywhere, in any letter case, changes in one call; campaigns with `active` 4 (Archived) change only if the user asked for it |
@@ -87,6 +90,40 @@ goes through a tracker. `replace_domain_in_all_landings` changes the old domain 
 go through a tracker or the domain can be in url parameters, read the urls with `list_campaign_landings` of these
 campaigns, or tell the user plainly that such landings change too.
 
+Call `replace_custom_bids` and `clear_custom_bids` only when the user wants the campaign to have exactly the given
+custom bids or none. To add custom bids, to change the bids of some or all of them, or to remove some of them, call
+`add_custom_bids`, `update_custom_bids` or `remove_custom_bids` instead.
+
+`replace_campaign_country_bids` removes the country bids of all countries that are not in the call. To change the
+bids of some countries, pass the other country bids from `get_campaign_country_bids` unchanged.
+
+When you show the change for `replace_campaign_country_bids`, check the `get_campaign_country_bids` response for the
+row with `country_id` 0: it is the GLOBAL country bid. If there is no such row, tell the user only that the targeting
+countries of the campaign will become exactly the countries in the call, without a reason. If
+`get_campaign_country_bids` returned an error, tell the user that the targeting countries of the campaign may become
+exactly the countries in the call, without a reason and without naming GLOBAL: for a call with only US, "only US may
+stay in the country targeting of the campaign". If the call has only the row with `country_id` 0, say nothing about
+the targeting.
+
+GLOBAL is a bid in all countries without their own bid, and only some campaigns have it: a campaign has it if
+`get_campaign_country_bids` returns a row with `country_id` 0 or `get_custom_bids` returns a custom bid with
+`country_code` GLOBAL. Mention GLOBAL to the user only for a campaign that has it, and say about it only that it is a
+bid in all countries without their own bid; about the GLOBAL country bid, also that the Adsterra manager sets it and
+the tools do not change or remove it. For a campaign without GLOBAL do not mention it, neither by name nor by its
+meaning, such as a bid in all countries without their own bid, and not as a reason. If the user asks for a GLOBAL bid
+there, say that this campaign has no GLOBAL bid and the tools cannot add one, and offer bids in the countries of the
+campaign, the same countries as for a bid in all countries.
+
+A GLOBAL custom bid is changed and removed like a custom bid of a country: if the user asks for it, call
+`update_custom_bids` or `remove_custom_bids`. Send the user to the Adsterra manager only for the GLOBAL country bid.
+
+A bid "in all countries" that the user asks for is not GLOBAL, and you do not call it GLOBAL to the user. A custom bid
+in all countries is a custom bid in each country of `pricing_settings` of the campaign in `get_campaign` or
+`list_campaigns`: for a campaign with US and DE there, a custom bid in US and a custom bid in DE. A country bid in all
+countries is a country bid in each country with its own country bid in `get_campaign_country_bids`, and the row with
+`country_id` 0 stays as it is. If the campaign has no such countries or the read tool returned an error, ask the user
+in which countries to set the bid.
+
 `add_to_blacklist` blocks every placement in every campaign of `campaign_ids`. If the user did not say in which
 campaigns to block placements, ask, for example when the placements come from a report that is not split by
 campaign.
@@ -97,8 +134,13 @@ the status again with `get_campaign` and show it.
 ### Changes the tools cannot make
 
 The tools cannot start a creative, start or pause a landing, change the URL of one landing, change the budget,
-limits, base bids or targeting of a campaign, or edit or delete a campaign or a creative. Do not make another change
-instead, such as starting the whole campaign instead of a creative: tell the user to do it in the Adsterra account.
+limits or targeting of a campaign (except the targeting countries of a CPM campaign without a row with `country_id` 0
+in `get_campaign_country_bids`: `replace_campaign_country_bids` makes them the countries of the call), the base bid of
+a campaign that is not CPM, or edit or delete a campaign or a creative. Do not make another change instead, such as
+starting the whole campaign instead of a creative: tell the user to do it in the Adsterra account. The tools do not
+change or remove the GLOBAL country bid of a campaign that has it: if the user asks to change or remove it, say that
+the tools do not change it and the Adsterra manager can change it, and do not send the user to the Adsterra account
+for it.
 
 ## Questions about statistics and campaigns
 
@@ -142,6 +184,8 @@ instead, such as starting the whole campaign instead of a creative: tell the use
 | Geo | Countries with spend but no conversions | `get_statistics`, `group_by` country | `spent` > 0 and `conversions` = 0 |
 | Budget | How much of the daily budget of a campaign is left | `get_campaign`, `get_statistics` | see below |
 | Status | Start or pause a campaign | `get_campaign`, `start_campaign` or `pause_campaign`, `get_campaign` | see "Before any change" |
+| Bids | Replace or remove all custom bids of a campaign | `get_custom_bids`, `replace_custom_bids` or `clear_custom_bids` | see "Before any change" |
+| Bids | Replace the country bids of a campaign | `get_campaign_country_bids`, `replace_campaign_country_bids` | see "Before any change" |
 
 ### Keep statistics requests small
 

@@ -1,7 +1,7 @@
 {
   "name": "adsterra-advertiser",
   "displayName": "Adsterra Advertiser",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Work with your Adsterra advertiser account from your AI agent: statistics, campaigns, budgets, placements, custom bids and campaign activity.",
   "author": {
     "name": "Adsterra",

@@ -5,7 +5,7 @@
       "url": "${user_config.server_url}",
       "headers": {
         "X-API-Key": "${user_config.api_key}",
-        "X-Adsterra-Plugin": "1.0.0"
+        "X-Adsterra-Plugin": "1.1.1"
       }
     }
   }
